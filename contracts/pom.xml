@@ -1,0 +1,6 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent><groupId>br.com.sisacao</groupId><artifactId>sisacao</artifactId><version>0.1.0-SNAPSHOT</version></parent>
+  <artifactId>contracts</artifactId>
+  <dependencies><dependency><groupId>jakarta.validation</groupId><artifactId>jakarta.validation-api</artifactId></dependency></dependencies>
+</project>
