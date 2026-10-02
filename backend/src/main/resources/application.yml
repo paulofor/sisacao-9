@@ -1,0 +1,22 @@
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${SERVER_PORT:8080}
+spring:
+  application:
+    name: sisacao-backend
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/sisacao}
+    username: ${POSTGRES_USER:sisacao}
+    password: ${POSTGRES_PASSWORD}
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+app:
+  bridge-token: ${BRIDGE_TOKEN}
+  market-source: ${MARKET_SOURCE:SIMULATED}
+  agents-url: ${AGENTS_URL:http://localhost:8081}

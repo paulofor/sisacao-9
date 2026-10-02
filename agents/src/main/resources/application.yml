@@ -1,0 +1,21 @@
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${SERVER_PORT:8081}
+spring:
+  application:
+    name: sisacao-agents
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+app:
+  llm-provider: ${LLM_PROVIDER:mock}
+  harness-root: ${HARNESS_ROOT:./harnesses}
+  codex-command: ${CODEX_COMMAND:codex}
+  codex-model: ${CODEX_MODEL:}
+  codex-workdir: ${CODEX_WORKDIR:./.local/codex-workspace}
+  codex-timeout-seconds: ${CODEX_TIMEOUT_SECONDS:90}

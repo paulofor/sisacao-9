@@ -1,0 +1,59 @@
+# Development topology only. Use a unique Compose project for each test run.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sisacao}
+      POSTGRES_USER: ${POSTGRES_USER:-sisacao}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-development-only}
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5432}:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  agents:
+    build:
+      context: .
+      dockerfile: Dockerfile.java
+      args: {MODULE: agents}
+    environment:
+      SERVER_ADDRESS: 0.0.0.0
+      LLM_PROVIDER: mock
+      HARNESS_ROOT: /app/harnesses
+    ports: ["127.0.0.1:${AGENTS_PORT:-8081}:8081"]
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.java
+      args: {MODULE: backend}
+    environment:
+      SERVER_ADDRESS: 0.0.0.0
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-sisacao}
+      POSTGRES_USER: ${POSTGRES_USER:-sisacao}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-development-only}
+      BRIDGE_TOKEN: ${BRIDGE_TOKEN:-local-bridge-development-only}
+      MARKET_SOURCE: ${MARKET_SOURCE:-SIMULATED}
+      AGENTS_URL: http://agents:8081
+    depends_on:
+      postgres: {condition: service_healthy}
+      agents: {condition: service_started}
+    ports: ["127.0.0.1:${BACKEND_PORT:-8080}:8080"]
+  bridge:
+    build:
+      context: .
+      dockerfile: bridge/Dockerfile
+    environment:
+      BRIDGE_MODE: simulated
+      BACKEND_URL: http://backend:8080
+      BRIDGE_TOKEN: ${BRIDGE_TOKEN:-local-bridge-development-only}
+    depends_on: [backend]
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on: [backend]
+    ports: ["127.0.0.1:${FRONTEND_PORT:-3000}:8080"]
+volumes:
+  postgres-data:
